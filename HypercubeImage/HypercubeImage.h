@@ -25,5 +25,6 @@ public:
 	const cv::Mat& operator[](size_t const chanel) const;
 
 	bool save(const std::string& fileName);
+	bool load(const std::string& fileName);
 };
 

@@ -6,6 +6,7 @@
 int main()
 {
     HypercubeImage image;
+    image.load("test.hyper");
     image.generateRandomImage(50,50,20);
  
     image.save("test.hyper");
