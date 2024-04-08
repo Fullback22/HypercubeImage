@@ -1,5 +1,24 @@
 #include "HypercubeImage.h"
 
+void HypercubeImage::createGrayFormat()
+{
+	hypercube_[0].copyTo(grayFormat_);
+	for (size_t i{}; i < grayFormat_.rows; ++i)
+	{
+		for (size_t j{}; j < grayFormat_.cols; ++j)
+		{
+			int sumChannels{};
+			for (auto& channel : hypercube_)
+			{
+				sumChannels += channel.at<uchar>(i, j);
+			}
+			grayFormat_.at<uchar>(i, j) = sumChannels/ hypercube_.size();
+		}
+	}
+	cv::Mat sd{ grayFormat_ };
+	cv::waitKey;
+}
+
 HypercubeImage::HypercubeImage()
 {
 }
@@ -41,6 +60,7 @@ void HypercubeImage::generateRandomImage(int const rows, int const cols, int cha
 			}
 		}
 	}
+	createGrayFormat();
 }
 
 cv::Mat& HypercubeImage::operator[](size_t const chanel)

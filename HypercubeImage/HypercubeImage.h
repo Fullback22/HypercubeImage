@@ -14,6 +14,8 @@ class HypercubeImage
 	std::vector<cv::Mat> hypercube_{ 0 };
 	cv::Mat rgbFormat_{};
 	cv::Mat grayFormat_{};
+
+	void createGrayFormat();
 public:
 	HypercubeImage();
 	HypercubeImage(const HypercubeImage& drop);
@@ -26,5 +28,9 @@ public:
 
 	bool save(const std::string& fileName);
 	bool load(const std::string& fileName);
+	
+	int channel() const;
+	int row() const;
+	int col() const;
 };
 
