@@ -5,6 +5,7 @@
 #include <random>
 
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 class HypercubeImage
 {
@@ -27,7 +28,7 @@ public:
 	const cv::Mat& operator[](size_t const chanel) const;
 
 	bool save(const std::string& fileName);
-	bool load(const std::string& fileName, bool binary = false);
+	bool load(const std::string& fileName);
 	
 	int channel() const;
 	int row() const;

@@ -2,19 +2,22 @@
 
 void HypercubeImage::createGrayFormat()
 {
-	hypercube_[0].copyTo(grayFormat_);
+	grayFormat_ = cv::Mat::zeros(hypercube_[0].size(), CV_32FC1);
+	
 	for (size_t i{}; i < grayFormat_.rows; ++i)
 	{
 		for (size_t j{}; j < grayFormat_.cols; ++j)
 		{
-			int sumChannels{};
+			float sumChannels{};
 			for (auto& channel : hypercube_)
 			{
-				sumChannels += channel.at<uchar>(i, j);
+				sumChannels += channel.at<float>(i, j);
 			}
-			grayFormat_.at<uchar>(i, j) = sumChannels/ hypercube_.size();
+			grayFormat_.at<float>(i, j) = sumChannels/ hypercube_.size();
+			//grayFormat_.at<float>(i, j) = 0.0;
 		}
 	}
+	grayFormat_.convertTo(grayFormat_, CV_8UC1, 255);
 	cv::Mat sd{ grayFormat_ };
 	cv::waitKey;
 }
@@ -48,15 +51,15 @@ void HypercubeImage::generateRandomImage(int const rows, int const cols, int cha
 {
 	std::random_device rd{};
 	std::mt19937 generator{ rd() };
-	std::normal_distribution<> dis{ 120, 30 };
-	hypercube_.resize(channels, cv::Mat{ rows, cols, CV_8UC1, cv::Scalar{0} });
+	std::normal_distribution<> dis{ 0.5, 0.15 };
+	hypercube_.resize(channels, cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0.0} });
 	for (auto& channel : hypercube_)
 	{
 		for (size_t i{}; i < rows; ++i)
 		{
 			for (size_t j{}; j < cols; ++j)
 			{
-				channel.at<uchar>(i, j) = dis(generator);
+				channel.at<float>(i, j) = dis(generator);
 			}
 		}
 	}
@@ -84,84 +87,60 @@ bool HypercubeImage::save(const std::string& fileName)
 	std::string format{ fileName.end() - 5, fileName.end() };
 	if (format != "hyper")
 		return false;
-	std::ofstream outFile{ fileName, std::ios_base::trunc | std::ios::binary };
-	outFile.write((char*)&leftBorder_, sizeof(float));
-	outFile.write((char*)&rightBorder_, sizeof(float));
-	outFile.write((char*)&hypercube_[0].rows, sizeof(int));
-	outFile.write((char*)&hypercube_[0].cols, sizeof(int));
-	size_t chaelQuantity{ hypercube_.size() };
-	outFile.write((char*)&chaelQuantity, sizeof(int));
-	int bytesQuantity{ sizeof(uchar) };
-	outFile.write((char*)&bytesQuantity, sizeof(int));
-	
-	//outFile << hypercube_[0].rows << '\t' << hypercube_[0].cols << '\t' << hypercube_.size()<<'\t'<< sizeof(uchar) << std::endl;
-	int pixelQuantity{ hypercube_[0].rows * hypercube_[0].cols };
+	std::ofstream outFile{ fileName, std::ios_base::trunc };
+	outFile << leftBorder_ << '\t' << rightBorder_ << std::endl;
+	outFile << col() << '\t' << row() << '\t' << channel() << std::endl;
+
 	for (auto& channel : hypercube_)
 	{
-		outFile.write((char*)channel.data, pixelQuantity * sizeof(uchar));
+		for (size_t i{}; i < row(); ++i)
+		{
+			for (size_t j{}; j < col(); ++j)
+			{
+				outFile << channel.at<float>(i, j) << '\t';
+			}
+			outFile << "\n";
+		}
+		outFile << "\n";
 	}
 	
 	outFile.close();
 	return true;
 }
 
-bool HypercubeImage::load(const std::string& fileName, bool binary)
+bool HypercubeImage::load(const std::string& fileName)
 {
 	std::string format{ fileName.end() - 5, fileName.end() };
 	if (format != "hyper")
 		return false;
-	if (binary)
+
+
+	std::ifstream inputFile{ fileName };
+	inputFile >> leftBorder_;
+	inputFile >> rightBorder_;
+	int cols{};
+	inputFile >> cols;
+	int rows{};
+	inputFile >> rows;
+	size_t channels{};
+	inputFile >> channels;
+
+	hypercube_.resize(channels, cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0.0} });
+
+	int pixelQuantity{ rows * cols };
+	for (auto& channel : hypercube_)
 	{
-		std::ifstream inputFile{ fileName, std::ios::binary };
-
-		inputFile.read((char*)&leftBorder_, sizeof(float));
-		inputFile.read((char*)&rightBorder_, sizeof(float));
-		int rows{};
-		inputFile.read((char*)&rows, sizeof(int));
-		int cols{};
-		inputFile.read((char*)&cols, sizeof(int));
-		size_t channels{};
-		inputFile.read((char*)&channels, sizeof(size_t));
-
-		hypercube_.resize(channels, cv::Mat{ rows, cols, CV_8UC1, cv::Scalar{0} });
-
-		int pixelQuantity{ rows * cols };
-		for (auto& channel : hypercube_)
-		{
-			inputFile.read((char*)channel.data, pixelQuantity * sizeof(uchar));
-		}
-		inputFile.close();
-	}
-	else
-	{
-		std::ifstream inputFile{ fileName };
-		inputFile >> leftBorder_;
-		inputFile >> rightBorder_;
-		int rows{};
-		inputFile >> rows;
-		int cols{};
-		inputFile >> cols;
-		size_t channels{};
-		inputFile >> channels;
-
-		hypercube_.resize(channels, cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0} });
-
-		int pixelQuantity{ rows * cols };
 		for (size_t i{}; i < rows; ++i)
 		{
 			for (size_t j{}; j < cols; ++j)
 			{
-				for (auto& channel : hypercube_)
-				{
-					inputFile >> channel.at<float>(i, j);
-					cv::waitKey();
-				}
+				inputFile >> channel.at<float>(i, j);
+				cv::waitKey();
 			}
 		}
-		
-		inputFile.close();
 	}
-	
+	inputFile.close();
+	createGrayFormat();
 	return true;
 }
 

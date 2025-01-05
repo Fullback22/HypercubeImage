@@ -6,10 +6,14 @@
 int main()
 {
     HypercubeImage image;
-    image.load("test1.hyper");
-    image.generateRandomImage(50,50,20);
+    image.generateRandomImage(50,60,2051);
  
-    image.save("test.hyper");
+    image.save("testNew1.hyper");
+    cv::Mat test1{ image[21] };
+    HypercubeImage image2;
+    image2.load("testNew1.hyper");
+    cv::Mat test2{ image2[21] };
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
