@@ -14,11 +14,9 @@ void HypercubeImage::createGrayFormat()
 				sumChannels += channel.at<float>(i, j);
 			}
 			grayFormat_.at<float>(i, j) = sumChannels/ hypercube_.size();
-			//grayFormat_.at<float>(i, j) = 0.0;
 		}
 	}
 	grayFormat_.convertTo(grayFormat_, CV_8UC1, 255);
-	cv::Mat sd{ grayFormat_ };
 	cv::waitKey;
 }
 
@@ -52,9 +50,10 @@ void HypercubeImage::generateRandomImage(int const rows, int const cols, int cha
 	std::random_device rd{};
 	std::mt19937 generator{ rd() };
 	std::normal_distribution<> dis{ 0.5, 0.15 };
-	hypercube_.resize(channels, cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0.0} });
+	hypercube_.resize(channels);
 	for (auto& channel : hypercube_)
 	{
+		channel = cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0.0} };
 		for (size_t i{}; i < rows; ++i)
 		{
 			for (size_t j{}; j < cols; ++j)
@@ -125,17 +124,15 @@ bool HypercubeImage::load(const std::string& fileName)
 	size_t channels{};
 	inputFile >> channels;
 
-	hypercube_.resize(channels, cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0.0} });
-
-	int pixelQuantity{ rows * cols };
+	hypercube_.resize(channels);
 	for (auto& channel : hypercube_)
 	{
+		channel = cv::Mat{ rows, cols, CV_32FC1, cv::Scalar{0.0} };
 		for (size_t i{}; i < rows; ++i)
 		{
 			for (size_t j{}; j < cols; ++j)
 			{
 				inputFile >> channel.at<float>(i, j);
-				cv::waitKey();
 			}
 		}
 	}

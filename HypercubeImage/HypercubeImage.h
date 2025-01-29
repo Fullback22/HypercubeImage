@@ -12,7 +12,7 @@ class HypercubeImage
 	int leftBorder_{ 350 };
 	int rightBorder_{ 2300 };
 	
-	std::vector<cv::Mat> hypercube_{ 0 };
+	std::vector<cv::Mat> hypercube_;
 	cv::Mat rgbFormat_{};
 	cv::Mat grayFormat_{};
 

@@ -8,11 +8,11 @@ int main()
     HypercubeImage image;
     image.generateRandomImage(50,60,2051);
  
-    image.save("testNew1.hyper");
-    cv::Mat test1{ image[21] };
+    //image.save("testNew1.hyper");
+    //cv::Mat test1{ image[21] };
     HypercubeImage image2;
-    image2.load("testNew1.hyper");
-    cv::Mat test2{ image2[21] };
+    image2.load("testPy1.hyper");
+    cv::Mat test2{ image2[0] };
     return 0;
 }
 
